@@ -10,16 +10,20 @@
 #'
 #' @examples
 #'
-correct.acrophase.msf<-function (b_rrr,b_sss) {
-  a<-atan(abs(b_sss/b_rrr))
-  if (b_rrr > 0 & b_sss > 0) { k=0; g=-1}
-  if (b_rrr > 0 & b_sss < 0) { k= -2*pi; g=1}
-  if (b_rrr < 0 & b_sss > 0) { k= -pi; g=1}
-  if (b_rrr < 0 & b_sss < 0) { k= -pi; g=-1}
-  acrophase<-(k+g*a)
+
+# OLD FUNCTION
+# correct.acrophase.msf<-function (b_rrr,b_sss) {
+#   a<-atan(abs(b_sss/b_rrr))
+#   if (b_rrr > 0 & b_sss > 0) { k=0; g=-1}
+#   if (b_rrr > 0 & b_sss < 0) { k= -2*pi; g=1}
+#   if (b_rrr < 0 & b_sss > 0) { k= -pi; g=1}
+#   if (b_rrr < 0 & b_sss < 0) { k= -pi; g=-1}
+#   acrophase<-(k+g*a)
+#   return(acrophase)
+# }
+#
+
+correct.acrophase.msf <- function(b_rrr,b_sss){
+  acrophase <- atan2(pars.raw.rrr, pars.raw.sss)/(2 * pi/24)
   return(acrophase)
 }
-
-
-
-
