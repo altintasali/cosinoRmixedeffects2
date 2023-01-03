@@ -24,21 +24,30 @@
 #' summary(f)
 #' get.contrasts.ci.cosinor(f,contrast.frm="~gender")
 #'
-get.contrasts.ci.cosinor<-function(fit,contrast.frm, nsim=500,parallel = "multicore", ncpus=8, conftype="norm", conflevel= 0.95,...){
+get.contrasts.ci.cosinor<-function(fit,
+                                   contrast.frm,
+                                   pairwise = TRUE,
+                                   nsim = 500,
+                                   parallel = "multicore",
+                                   ncpus = 8,
+                                   conftype = "norm",
+                                   conflevel = 0.95,
+                                   ...){
 
   ## bootstrap to get contrasts
   t0<-Sys.time()
-  doMC::registerDoMC(8)
+  doMC::registerDoMC(ncpus)
   boot.cont<-bootMer(fit,
-                     FUN = create.boot.FUN.cont(contrast.frm=contrast.frm),
-                     nsim =nsim,
+                     FUN = create.boot.FUN.cont(contrast.frm=contrast.frm, pairwise = pairwise),
+                     nsim = nsim,
                      parallel = parallel,
-                     ncpus=ncpus)
+                     ncpus = ncpus)
   Sys.time()-t0
 
 
   ps<-sapply(1:length(boot.cont$t0), function(i, boot.object){
-    t0_obs<-boot.object$t0[i]; t_obs<-boot.object$t[,i]
+    t0_obs<-boot.object$t0[i]
+    t_obs<-boot.object$t[,i]
     #z_underHA=t_obs-mean(t_obs)+t0_obs  #~N(t*)
     #z_underH0<-z-t0_obs                      #~N(0)
     z_underH0<-t_obs-mean(t_obs) # create null distribution
