@@ -4,6 +4,7 @@
 #' MESOR, amplitude and acrophase in each group.
 #'
 #' @param contrast.frm  a string formula specifying the names of the predictors over which emmeans are desired.
+#' @param pairwise If TRUE (default), test for differential rhythmicity (compare groups). If FALSE, test for rhythmicity only (detect rhythmicity)
 #'
 #' @return
 #' @export
@@ -19,9 +20,7 @@
 #' boot.mean<-bootMer(f1.b,FUN = create.boot.FUN.mean(contrast.frm='~T0toT14+Tneg7toT7'), nsim =500, parallel = "multicore", ncpus=8)
 #'
 #'
-
-
-create.boot.FUN.mean<-function(contrast.frm){
-  boot.FUN.mean=function(.){just.get.means.cosinor(., contrast.frm=contrast.frm)};
+create.boot.FUN.mean<-function(contrast.frm, pairwise = TRUE){
+  boot.FUN.mean=function(.){just.get.means.cosinor(., contrast.frm=contrast.frm, pairwise = pairwise)};
   return(boot.FUN.mean)}
 

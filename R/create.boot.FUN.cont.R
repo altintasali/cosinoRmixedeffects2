@@ -4,6 +4,7 @@
 #' of MESOR, amplitude and acrophase
 #'
 #' @param contrast.frm a string formula specifying the names of the predictors over which emmeans are desired.
+#' @param pairwise If TRUE (default), test for differential rhythmicity (compare groups). If FALSE, test for rhythmicity only (detect rhythmicity)
 #'
 #' @return
 #' @export
@@ -21,6 +22,6 @@
 #'
 #'
 #'
-create.boot.FUN.cont<-function(contrast.frm){
-  boot.FUN.cont=function(.){just.get.contrasts.cosinor(., contrast.frm=contrast.frm)};
+create.boot.FUN.cont<-function(contrast.frm, pairwise = TRUE){
+  boot.FUN.cont=function(.){just.get.contrasts.cosinor(., contrast.frm=contrast.frm, pairwise = pairwise)};
   return(boot.FUN.cont)}
