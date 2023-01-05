@@ -3,7 +3,7 @@
 #' Given an outcome, predictor variable, fit the cosinor mixed model with optional covariate effects
 #'
 #' @param y a vector specifying the outcome variable /phenotype variable
-#' @param x a vector specifying the predictor variables
+#' @param x a vector specifying the predictor variables. If x = NULL and interaction = NULL, the model defaults to basic harmonic regression for rhythmicity analysis
 #' @param data a dataframe with the x,y, covariates, random variables
 #' @param na.action how to deal with missing data, default is na.action = na.omit
 #' @param random a vector specifying the random effects as specified in lmer formula. e.g. "1|participant_id".
@@ -25,8 +25,11 @@
 #' f2<-fit.cosinor.mixed(y="hrv",interaction=c("gender","bmi_baseline_cat"),random="1|participant_id", data=db.model)
 #' summary(f2)
 #'
-fit.cosinor.mixed<-function(y, x = NULL, random, interaction=NULL, data, na.action=na.omit){
+#' ## Individual rhythm
+#' f_ind <- fit.cosinor.mixed(y="hrv", x = NULL, random="1|participant_id", data=db.model)
+#' summary(f_ind)
 
+fit.cosinor.mixed<-function(y, x = NULL, random, interaction=NULL, data, na.action=na.omit){
 
   ## random effects part
   random.form<-paste0(paste("(",random,")", collapse = "+"))
@@ -34,9 +37,13 @@ fit.cosinor.mixed<-function(y, x = NULL, random, interaction=NULL, data, na.acti
   ## x are the covariates to estimate effects on MESOR, Amplitude and acrophase
 
   if (is.null(x)==TRUE & is.null(interaction) == TRUE){
-    print("Error: Please put in covariates or interaction variables")
+    message("Modeling for rhytmicity (individual rhythm)")
+
+    model.formula<-as.formula(paste0(y,"~ rrr + sss", "+", random.form))
   }
   else{
+    message("Modeling for differential rhytmicity (pairwise rhythm)")
+
     if (is.null(x)==TRUE & is.null(interaction) ==FALSE){
 
       ## interactions are interaction terms for adjustment
@@ -76,6 +83,8 @@ fit.cosinor.mixed<-function(y, x = NULL, random, interaction=NULL, data, na.acti
   fit<-lmer(model.formula,
             data=data,
             na.action = na.action)
+
+  return(fit)
 
 }
 
