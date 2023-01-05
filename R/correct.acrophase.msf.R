@@ -4,26 +4,14 @@
 #'
 #' @param b_rrr is the beta coefficient for x (beta), which is cos(2πt/τ), τ is period
 #' @param b_sss is the beta coefficient for z (gamma), which is sin(2πt/τ), τ is period
+#' @param period period (τ). Default is 24
 #'
 #' @return correct value of acrophase
 #' @export
 #'
 #' @examples
 #'
-
-# OLD FUNCTION
-# correct.acrophase.msf<-function (b_rrr,b_sss) {
-#   a<-atan(abs(b_sss/b_rrr))
-#   if (b_rrr > 0 & b_sss > 0) { k=0; g=-1}
-#   if (b_rrr > 0 & b_sss < 0) { k= -2*pi; g=1}
-#   if (b_rrr < 0 & b_sss > 0) { k= -pi; g=1}
-#   if (b_rrr < 0 & b_sss < 0) { k= -pi; g=-1}
-#   acrophase<-(k+g*a)
-#   return(acrophase)
-# }
-#
-
-correct.acrophase.msf <- function(b_rrr,b_sss){
-  acrophase <- atan2(pars.raw.rrr, pars.raw.sss)/(2 * pi/24)
+correct.acrophase.msf <- function(b_rrr, b_sss, period = 24){
+  acrophase <- atan2(b_sss, b_rrr)/(2 * pi/period)
   return(acrophase)
 }
