@@ -7,24 +7,30 @@
 #'
 #' @param fit  the object from lmer()
 #' @param contrast.frm  a string formula specifying the names of the predictors over which emmeans are desired.
-#' @param output output = 'pairwise.diff'.
+#' @param pairwise If TRUE (default), test for differential rhythmicity (compare groups). If FALSE, test for rhythmicity only (detect rhythmicity)
 #' @param ... other arguments passed on to methods
 #'
 #' @return
 #' @export
 #'
 #' @examples
-#' f1.a<-lmer(hrv~age+gender+
+#' db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=db.cosinor)
+#'
+#' f1.a<-lmer(hrv~gender+
 #'            gender*rrr+
 #'            gender*sss+(1|participant_id),
 #'            data=db.model, na.action = na.omit)
 #'
-#' just.get.contrasts.cosinor(fit=f1.a, contrast.frm='~gender')
+#' # Differential rhythmicity stats (pairwise comparisons)
+#' just.get.contrasts.cosinor(fit=f1.a, contrast.frm='~gender', pairwise = TRUE)
 #'
+#' # Rhytmicity stats (individual comparisons)
+#' just.get.contrasts.cosinor(fit=f1.a, contrast.frm='~gender', pairwise = FALSE)
 #'
-
-just.get.contrasts.cosinor<- function(fit, contrast.frm,
-                                      output='pairwise.diff',...) {
+just.get.contrasts.cosinor<- function(fit,
+                                      contrast.frm,
+                                      pairwise = TRUE,
+                                      ...){
   #get the fitted contrasts and transform to Amp,Acr
   contrast.frm<-as.formula(contrast.frm)
   mf <- fit #object$fit
@@ -50,12 +56,16 @@ just.get.contrasts.cosinor<- function(fit, contrast.frm,
   acr<-apply(cbind(pars.raw.rrr,pars.raw.sss), 1,
              function(x){correct.acrophase.msf(b_rrr=x[1],b_sss=x[2])})
   names(acr) <- paste0('Acrophase_',groups.names)
-  out<-c(pars.raw.mesor,amp,acr)
-  if (output=='pairwise.diff'){
+
+  if (pairwise){
     out<-c(get.pairwise.diff(pars.raw.mesor),
            get.pairwise.diff(amp),
            get.pairwise.diff(acr))
+  }else{
+    out<-c(pars.raw.mesor, amp, acr)
+    names(out) <- c("MESOR", "Amplitude", "Acrophase")
   }
+
   return(out)
 }
 

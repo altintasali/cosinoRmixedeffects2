@@ -22,7 +22,7 @@
 #'just.get.means.cosinor(fit=f1.a, contrast.frm='~T0toT14')
 #'
 #'
-just.get.means.cosinor<- function(fit, contrast.frm,...) {
+just.get.means.cosinor<- function(fit, contrast.frm, pairwise = TRUE, ...) {
   #get the fitted contrasts and transform to Amp,Acr
   contrast.frm<-as.formula(contrast.frm)
   mf <- fit #object$fit
@@ -40,7 +40,7 @@ just.get.means.cosinor<- function(fit, contrast.frm,...) {
   pars.raw.rrr<-groups.rrr@linfct %*% fixef(mf)
   pars.raw.sss<-groups.sss@linfct %*% fixef(mf)
 
-  names(pars.raw.mesor)<-paste('MESOR_',groups.names)
+  names(pars.raw.mesor)<-paste0('MESOR_',groups.names)
   amp<-apply(cbind(pars.raw.rrr, pars.raw.sss), 1, function(x){sqrt(sum(x^2))})
   names(amp) <- paste0('Amplitude_',groups.names)
 
@@ -48,7 +48,12 @@ just.get.means.cosinor<- function(fit, contrast.frm,...) {
              function(x){correct.acrophase.msf(b_rrr=x[1],b_sss=x[2])})
   names(acr) <- paste0('Acrophase_',groups.names)
 
-  atan2(pars.raw.rrr, pars.raw.sss)/(2 * pi/24)
-  return(c(pars.raw.mesor,amp,acr))
+  out <- c(pars.raw.mesor,amp,acr)
+
+  if(!pairwise){
+    names(out) <- c("MESOR", "Amplitude", "Acrophase")
+  }
+
+  return(out)
 }
 
