@@ -11,6 +11,9 @@
 #' @param ncpus integer: number of processes to be used in parallel operation: typically one would choose this to be the number of available CPUs.Default is 8.
 #' @param conftype a character string representing the type of interval required.The value must be one of "norm", "basic","perc".
 #' @param conflevel The confidence level required, default is 0.95.
+#' @param pairwise If TRUE (default), test for differential rhythmicity (compare groups). If FALSE, test for rhythmicity only (detect rhythmicity)
+#' @param plot Boolean (default: TRUE) for plotting the NULL distribution and the observed value while calculating bootstrapped p-values
+#' @param seed argument to pass into 'seed' parameter in bootMer() function. Default NULL
 #' @param ... additional argument(s) for methods.
 #'
 #' @return
@@ -32,6 +35,8 @@ get.contrasts.ci.cosinor<-function(fit,
                                    ncpus = 8,
                                    conftype = "norm",
                                    conflevel = 0.95,
+                                   plot = TRUE,
+                                   seed = NULL,
                                    ...){
 
   ## bootstrap to get contrasts
@@ -41,7 +46,8 @@ get.contrasts.ci.cosinor<-function(fit,
                      FUN = create.boot.FUN.cont(contrast.frm=contrast.frm, pairwise = pairwise),
                      nsim = nsim,
                      parallel = parallel,
-                     ncpus = ncpus)
+                     ncpus = ncpus,
+                     seed = seed)
   Sys.time()-t0
 
 
@@ -49,12 +55,19 @@ get.contrasts.ci.cosinor<-function(fit,
     t0_obs<-boot.object$t0[i]
     t_obs<-boot.object$t[,i]
     #z_underHA=t_obs-mean(t_obs)+t0_obs  #~N(t*)
-    #z_underH0<-z-t0_obs                      #~N(0)
+    #z_underH0<-z-t0_obs                 #~N(0)
     z_underH0<-t_obs-mean(t_obs) # create null distribution
-    plot(density(z_underH0), xlim=range(c(t0_obs,z_underH0)))
-    points(t0_obs,0,pch='*',cex=5)
-    p_2tails<-mean(abs(z_underH0) > abs(t0_obs))},
-    boot.object=boot.cont, USE.NAMES = T)
+
+    if(plot){
+      plot(density(z_underH0), xlim=range(c(t0_obs,z_underH0)), main = names(boot.object$t0)[i])
+      points(t0_obs,0,pch='*',cex=5)
+    }
+
+    p_2tail <- mean(abs(z_underH0) > abs(t0_obs)) # 2-tailed
+
+    return(p_2tail)
+    },
+    boot.object=boot.cont, USE.NAMES = TRUE)
 
   ## Final db containing deltas
   db.delta<-cbind(confint(boot.cont, type=conftype, level=conflevel),
@@ -62,11 +75,5 @@ get.contrasts.ci.cosinor<-function(fit,
                   boot.SE=apply(boot.cont$t,2,sd),
                   pvalue=ps)
 
-  db.delta
+  return(db.delta)
 }
-
-
-
-
-
-
