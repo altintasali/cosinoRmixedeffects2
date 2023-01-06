@@ -15,35 +15,45 @@
 #' @param conflevel The confidence level required, default is 0.95.
 #' @param ... additional argument(s) for methods.
 #'
-#' @return
+#' @return Output with confidence intervals and means for MESOR, amplitude and acrophase
+#'
+#' @importFrom lme4 bootMer
+#' @importFrom limma strsplit2
+#' @importFrom plyr rename
 #' @export
 #'
 #' @examples
+#' data(db.cosinor)
+#' head(db.cosinor)
+#' db.model <- create.cosinor.param(time = "Hour_of_Day", period = 24, data = db.cosinor)
 #'
-#' f<-fit.cosinor.mixed(y="hrv", x="gender", random="1|participant_id", data=db.model)
+#' f<-fit.cosinor.mixed(y = "hrv", x = "gender", random = "1|participant_id", data = db.model)
 #' summary(f)
-#' get.means.ci.cosinor(fit=f, contrast.mean.frm="~gender")
+#' get.means.ci.cosinor(fit = f, contrast.frm = "~gender", nsim = 50, ncpus = 2)
 #'
-get.means.ci.cosinor<-function(fit, contrast.frm,
-                               pairwise = TRUE,
-                               nsim = 500,
-                               parallel = "multicore",
-                               ncpus = 8,
-                               conftype = "norm",
-                               conflevel = 0.95,
-                               seed = NULL,
-                               ...){
+get.means.ci.cosinor <- function(fit, contrast.frm,
+                                 pairwise = TRUE,
+                                 nsim = 500,
+                                 parallel = "multicore",
+                                 ncpus = 8,
+                                 conftype = "norm",
+                                 conflevel = 0.95,
+                                 seed = NULL,
+                                 ...){
+
+  ## Assign parameters to NULL to avoid devtools::check() NOTES
+  VALUE <-  NULL
 
   ## get tarnsformed means of MESOR, amplitude and acrophase
-  ModelCoefs<-just.get.means.cosinor(fit=fit, contrast.frm=contrast.frm, pairwise = pairwise)
+  ModelCoefs <- just.get.means.cosinor(fit=fit, contrast.frm=contrast.frm, pairwise = pairwise)
 
   ##bootstrap to get the confidence interval
-  boot.mean<-bootMer(fit,
-                     FUN = create.boot.FUN.mean(contrast.frm=contrast.frm, pairwise = pairwise),
-                     nsim = nsim,
-                     parallel = parallel,
-                     ncpus = ncpus,
-                     seed = seed)
+  boot.mean <- lme4::bootMer(fit,
+                             FUN = create.boot.FUN.mean(contrast.frm=contrast.frm, pairwise = pairwise),
+                             nsim = nsim,
+                             parallel = parallel,
+                             ncpus = ncpus,
+                             seed = seed)
 
   ##get the results
   db.means<-cbind.data.frame(MEAN=boot.mean$t0,
@@ -53,17 +63,14 @@ get.means.ci.cosinor<-function(fit, contrast.frm,
     db.means$VALUE<-gsub(" ", "",rownames(db.means))
 
     db.means<-mutate(db.means,
-                     Param=strsplit2(VALUE, "_")[,1],
-                     contrast=gsub(" ","",strsplit2(VALUE, "_")[,2]))
+                     Param = limma::strsplit2(VALUE, "_")[,1],
+                     contrast = gsub(" ", "", limma::strsplit2(VALUE, "_")[,2]))
     ##"|", "*" will appear when contrast.frm are interactions
-    db.means<-plyr::rename(db.means, c("contrast" = mgsub(c("~","[|]","[*]"),c("","_","_"), contrast.frm)))
-    db.means$Param<-factor(db.means$Param,levels=c("MESOR","Amplitude","Acrophase"))
+    db.means <- plyr::rename(db.means, c("contrast" = mgsub(c("~","[|]","[*]"),c("","_","_"), contrast.frm)))
+    db.means$Param <- factor(db.means$Param, levels=c("MESOR","Amplitude","Acrophase"))
   }else{
-    db.means$Param<-factor(rownames(db.means),levels=c("MESOR","Amplitude","Acrophase"))
+    db.means$Param <- factor(rownames(db.means), levels=c("MESOR","Amplitude","Acrophase"))
   }
 
   return(db.means)
 }
-
-
-
