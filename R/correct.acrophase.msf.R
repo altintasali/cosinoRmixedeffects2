@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples
-#'
+#' correct.acrophase.msf(1, 1)
 correct.acrophase.msf <- function(b_rrr, b_sss, period = 24){
   acrophase <- atan2(b_sss, b_rrr)/(2 * pi/period)
   return(acrophase)
