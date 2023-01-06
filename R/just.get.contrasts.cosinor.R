@@ -10,16 +10,21 @@
 #' @param pairwise If TRUE (default), test for differential rhythmicity (compare groups). If FALSE, test for rhythmicity only (detect rhythmicity)
 #' @param ... other arguments passed on to methods
 #'
-#' @return
+#' @return MESOR, amplitude and acrophase estimates within contrasts
+#'
+#' @import stats emmeans
+#'
 #' @export
 #'
 #' @examples
+#' require(lme4)
+#'
 #' db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=db.cosinor)
 #'
-#' f1.a<-lmer(hrv~gender+
-#'            gender*rrr+
-#'            gender*sss+(1|participant_id),
-#'            data=db.model, na.action = na.omit)
+#' f1.a<-lme4::lmer(hrv~gender+
+#'                  gender*rrr+
+#'                  gender*sss+(1|participant_id),
+#'                  data=db.model, na.action = na.omit)
 #'
 #' # Differential rhythmicity stats (pairwise comparisons)
 #' just.get.contrasts.cosinor(fit=f1.a, contrast.frm='~gender', pairwise = TRUE)
