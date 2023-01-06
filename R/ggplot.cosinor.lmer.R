@@ -9,22 +9,35 @@
 #' @param db.means  the data frame with mean values for MESOR, amplitude, and acrophase, for each comparison group
 #' @param DATA  a data frame containing the variables named in lmer object
 #'
-#' @return
+#' @return ggplot
+#'
+#' @import ggplot2 stats
+#' @importFrom reshape2 dcast
+#' @importFrom dplyr mutate
+#'
 #' @export
 #'
 #' @examples
-#' ggplot.cosinor.lmer(object=f1.a,
-#'                     x_str="T0toT14",
+#' data(db.cosinor)
+#' head(db.cosinor)
+#' db.model <- create.cosinor.param(time = "Hour_of_Day", period = 24, data = db.cosinor)
+#'
+#' f <- fit.cosinor.mixed(y = "hrv", x = "gender", random = "1|participant_id", data = db.model)
+#' db.means <- get.means.ci.cosinor(fit = f, contrast.frm = "~gender", nsim = 50, ncpus = 2)
+#' ggplot.cosinor.lmer(object=f,
+#'                     x_str="gender",
 #'                     period=24,
 #'                     db.means=db.means,
 #'                     DATA=db.model)
 #'
-
 ggplot.cosinor.lmer<- function(object=NULL,
                                  x_str=NULL,
                                  period=NULL,
                                  db.means=NULL,
                                  DATA=NULL){
+
+  ## Assign parameters to NULL to avoid devtools::check() NOTES
+  Acrophase <-  NULL
 
   ### Create simulate time data for each group ###
   # a<-lapply(x_str, function(d){unique(object@frame[,d])}) # list, each element is a model variable, unique values
@@ -60,7 +73,7 @@ ggplot.cosinor.lmer<- function(object=NULL,
 
   FORM<-paste0(paste0(colnames(db.var),collapse = "+"),"~Param")
 
-  db.params<-dcast(db.means2, FORM, value.var = "MEAN")
+  db.params<-reshape2::dcast(db.means2, FORM, value.var = "MEAN")
 
   db.var<-sapply(x_str, function(i){
     newdata[,i]
@@ -79,20 +92,15 @@ ggplot.cosinor.lmer<- function(object=NULL,
 
   ### rough est: what is t when Yhat = A
 
-  db.plot<-mutate(db.plot,
+  db.plot<-dplyr::mutate(db.plot,
                   T_AMP=-(Acrophase*period)/(2*pi))
 
 
 
   if (missing(x_str) || is.null(x_str)) {
-    ggplot(newdata, aes_string(x = time.var, y = "Yhat"))
+    ggplot2::ggplot(newdata, aes_string(x = time.var, y = "Yhat"))
   }
   else {
-    ggplot(db.plot, aes_string(x = time.var, y = "Yhat", color="GROUP"))
+    ggplot2::ggplot(db.plot, aes_string(x = time.var, y = "Yhat", color="GROUP"))
   }
 }
-
-
-
-
-
