@@ -9,26 +9,38 @@
 #' @param random a vector specifying the random effects as specified in lmer formula. e.g. "1|participant_id".
 #' @param interaction a vector  specifying the variables for interactions
 #'
-#' @return
+#' @return Linear mixed model fit from \link[lme4]{lmer}
+#'
+#' @import stats lme4
 #' @export
 #'
 #' @examples
 #'
-#' library(lme4)
-#' data("db.model")
+#' data(db.cosinor)
+#' head(db.cosinor)
+#' db.model <- create.cosinor.param(time = "Hour_of_Day", period = 24, data = db.cosinor)
 #'
 #' ## examine the effects of gender on MESOR, acrophase, amplitude on hrv
-#' f<-fit.cosinor.mixed(y="hrv", x="gender", random="1|participant_id", data=db.model)
+#' f <- fit.cosinor.mixed(y = "hrv",
+#'                        x = "gender",
+#'                        random = "1|participant_id",
+#'                        data = db.model)
 #' summary(f)
 #'
-#' ## examine the interaction effects of gender and baseline bmi categories on MESOR, acrophase, amplitude on hrv
-#' f2<-fit.cosinor.mixed(y="hrv",interaction=c("gender","bmi_baseline_cat"),random="1|participant_id", data=db.model)
+#' ## examine the interaction effects of gender and baseline bmi categories on
+#' ## MESOR, acrophase, amplitude on hrv
+#' f2 <- fit.cosinor.mixed(y = "hrv",
+#'                         interaction = c("gender","bmi_baseline_cat"),
+#'                         random = "1|participant_id",
+#'                         data = db.model)
 #' summary(f2)
 #'
 #' ## Individual rhythm
-#' f_ind <- fit.cosinor.mixed(y="hrv", x = NULL, random="1|participant_id", data=db.model)
+#' f_ind <- fit.cosinor.mixed(y = "hrv",
+#'                            x = NULL,
+#'                            random = "1|participant_id",
+#'                            data=db.model)
 #' summary(f_ind)
-
 fit.cosinor.mixed<-function(y, x = NULL, random, interaction=NULL, data, na.action=na.omit){
 
   ## random effects part
