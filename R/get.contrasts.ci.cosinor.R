@@ -16,16 +16,21 @@
 #' @param seed argument to pass into 'seed' parameter in bootMer() function. Default NULL
 #' @param ... additional argument(s) for methods.
 #'
-#' @return
+#' @return Output with confidence intervals, estimates, standard errors and p-values for MESOR, amplitude and acrophase
+#'
+#' @import stats lme4 emmeans
+#' @importFrom doMC registerDoMC
+#' @importFrom graphics points
 #' @export
 #'
 #' @examples
-#' library(lme4)
-#' library(emmeans)
-#' data("db.model")
-#' f<-fit.cosinor.mixed(y="hrv", x="gender", random="1|participant_id", data=db.model)
+#' data(db.cosinor)
+#' head(db.cosinor)
+#' db.model <- create.cosinor.param(time = "Hour_of_Day", period = 24, data = db.cosinor)
+#'
+#' f <- fit.cosinor.mixed(y = "hrv", x = "gender", random = "1|participant_id", data = db.model)
 #' summary(f)
-#' get.contrasts.ci.cosinor(f,contrast.frm="~gender")
+#' get.contrasts.ci.cosinor(f, contrast.frm = "~gender", nsim = 50, ncpus = 2)
 #'
 get.contrasts.ci.cosinor<-function(fit,
                                    contrast.frm,
