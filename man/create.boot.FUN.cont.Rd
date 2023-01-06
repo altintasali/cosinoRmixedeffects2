@@ -4,29 +4,35 @@
 \alias{create.boot.FUN.cont}
 \title{Bootstrap to get standard error of MESOR, amplitude and acrophase contrasts}
 \usage{
-create.boot.FUN.cont(contrast.frm)
+create.boot.FUN.cont(contrast.frm, pairwise = TRUE)
 }
 \arguments{
 \item{contrast.frm}{a string formula specifying the names of the predictors over which emmeans are desired.}
+
+\item{pairwise}{If TRUE (default), test for differential rhythmicity (compare groups). If FALSE, test for rhythmicity only (detect rhythmicity)}
 }
 \value{
-
+function input for [bootMer] calculating the mean of MESOR, Amplitude and Acrophase
 }
 \description{
 Bootstrap function takes in a fitted merMod object as input and returns the statistics (e.g. standard error) of pair-wise contrasts
 of MESOR, amplitude and acrophase
 }
 \examples{
+data(db.cosinor)
+head(db.cosinor)
+## create cosinor paramenters needed for cosinor model
+db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=db.cosinor)
 
-f1.b<-lmer(hrv~age+gender+T0toT14+Tneg7toT7+
-           gender*rrr+gender*sss+
-           T0toT14*rrr+T0toT14*sss+
-           Tneg7toT7*rrr+Tneg7toT7*sss+
-           (1|participant_id),
-           data=db.model, na.action = na.omit)
+## examine the effects of gender on MESOR, acrophase, amplitude on hrv
+f <- fit.cosinor.mixed(y = "hrv",
+                       x = "gender",
+                       random = "1|participant_id",
+                       data = db.model)
 
-boot.cont<-bootMer(f1.b,FUN = create.boot.FUN.cont(contrast.frm='~T0toT14+Tneg7toT7'), nsim =500, parallel = "multicore", ncpus=8)
-
-
-
+boot.cont <- lme4::bootMer(f,
+                           FUN = create.boot.FUN.cont(contrast.frm='~gender'),
+                           nsim = 50,
+                           parallel = "multicore",
+                           ncpus = 2)
 }

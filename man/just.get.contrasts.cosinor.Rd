@@ -4,19 +4,19 @@
 \alias{just.get.contrasts.cosinor}
 \title{Get the pairwise contrasts for MESOR, Amplitude, Acrophase}
 \usage{
-just.get.contrasts.cosinor(fit, contrast.frm, output = "pairwise.diff", ...)
+just.get.contrasts.cosinor(fit, contrast.frm, pairwise = TRUE, ...)
 }
 \arguments{
 \item{fit}{the object from lmer()}
 
 \item{contrast.frm}{a string formula specifying the names of the predictors over which emmeans are desired.}
 
-\item{output}{output = 'pairwise.diff'.}
+\item{pairwise}{If TRUE (default), test for differential rhythmicity (compare groups). If FALSE, test for rhythmicity only (detect rhythmicity)}
 
 \item{...}{other arguments passed on to methods}
 }
 \value{
-
+MESOR, amplitude and acrophase estimates within contrasts
 }
 \description{
 Get the estimated marginal means for the specified factors or factor combinations in a linear model,
@@ -24,12 +24,19 @@ and transform to non-linear parameters MESOR, amplitude, and acrophase, and get 
 for MESOR, amplitude and acrophase by the specified factors.
 }
 \examples{
-f1.a<-lmer(hrv~age+gender+
-           gender*rrr+
-           gender*sss+(1|participant_id),
-           data=db.model, na.action = na.omit)
+require(lme4)
 
-just.get.contrasts.cosinor(fit=f1.a, contrast.frm='~gender')
+db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=db.cosinor)
 
+f1.a<-lme4::lmer(hrv~gender+
+                 gender*rrr+
+                 gender*sss+(1|participant_id),
+                 data=db.model, na.action = na.omit)
+
+# Differential rhythmicity stats (pairwise comparisons)
+just.get.contrasts.cosinor(fit=f1.a, contrast.frm='~gender', pairwise = TRUE)
+
+# Rhytmicity stats (individual comparisons)
+just.get.contrasts.cosinor(fit=f1.a, contrast.frm='~gender', pairwise = FALSE)
 
 }

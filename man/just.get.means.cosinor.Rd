@@ -4,30 +4,34 @@
 \alias{just.get.means.cosinor}
 \title{Get MESOR(M), Amplitude(A), Acrophase}
 \usage{
-just.get.means.cosinor(fit, contrast.frm, ...)
+just.get.means.cosinor(fit, contrast.frm, pairwise = TRUE, ...)
 }
 \arguments{
 \item{fit}{the lmer object from lmer()}
 
 \item{contrast.frm}{a string formula specifying the names of the predictors over which emmeans are desired.}
 
+\item{pairwise}{If TRUE (default), test for differential rhythmicity (compare groups). If FALSE, test for rhythmicity only (detect rhythmicity)}
+
 \item{...}{other arguments passed on to methods}
 }
 \value{
-
+MESOR, amplitude and acrophase estimates
 }
 \description{
 Get the estimated marginal means for the specified factors or factor combinations in a linear model,
 and transform to non-linear parameters MESOR, amplitude, and acrophase.
 }
 \examples{
- f1.a<-lmer(hrv~age+gender+T0toT14+
-            gender*rrr+gender*sss+
-            T0toT14*rrr+T0toT14*sss+
-            (1|participant_id),
-            data=db.model, na.action = na.omit)
+require(lme4)
+db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=db.cosinor)
 
- just.get.means.cosinor(fit=f1.a, contrast.frm='~T0toT14')
+f1.a<-lme4::lmer(hrv~gender+T0toT14+
+                 gender*rrr+gender*sss+
+                 T0toT14*rrr+T0toT14*sss+
+                 (1|participant_id),
+                 data=db.model, na.action = na.omit)
 
+just.get.means.cosinor(fit=f1.a, contrast.frm='~T0toT14')
 
 }

@@ -24,14 +24,20 @@
 \item{DATA}{a data frame containing the variables named in lmer object}
 }
 \value{
-
+ggplot
 }
 \description{
 Given a lmer model fit, generate a plot of the data with the fitted values.
 }
 \examples{
-ggplot.cosinor.lmer(object=f1.a,
-                    x_str="T0toT14",
+data(db.cosinor)
+head(db.cosinor)
+db.model <- create.cosinor.param(time = "Hour_of_Day", period = 24, data = db.cosinor)
+
+f <- fit.cosinor.mixed(y = "hrv", x = "gender", random = "1|participant_id", data = db.model)
+db.means <- get.means.ci.cosinor(fit = f, contrast.frm = "~gender", nsim = 50, ncpus = 2)
+ggplot.cosinor.lmer(object=f,
+                    x_str="gender",
                     period=24,
                     db.means=db.means,
                     DATA=db.model)

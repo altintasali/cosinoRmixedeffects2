@@ -4,12 +4,14 @@
 \alias{correct.acrophase.msf}
 \title{Get the correct value of acrophase}
 \usage{
-correct.acrophase.msf(b_rrr, b_sss)
+correct.acrophase.msf(b_rrr, b_sss, period = 24)
 }
 \arguments{
 \item{b_rrr}{is the beta coefficient for x (beta), which is cos(2πt/τ), τ is period}
 
 \item{b_sss}{is the beta coefficient for z (gamma), which is sin(2πt/τ), τ is period}
+
+\item{period}{period (τ). Default is 24}
 }
 \value{
 correct value of acrophase
@@ -18,5 +20,5 @@ correct value of acrophase
 Given beta (b_rrr) and gamma (b_sss), get the correct value of acrophase.
 }
 \examples{
-
+correct.acrophase.msf(1, 1)
 }

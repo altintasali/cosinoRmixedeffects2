@@ -7,11 +7,13 @@
 get.means.ci.cosinor(
   fit,
   contrast.frm,
+  pairwise = TRUE,
   nsim = 500,
   parallel = "multicore",
   ncpus = 8,
   conftype = "norm",
   conflevel = 0.95,
+  seed = NULL,
   ...
 )
 }
@@ -19,6 +21,8 @@ get.means.ci.cosinor(
 \item{fit}{the object from lmer() function}
 
 \item{contrast.frm}{a string formula specifying the names of the predictors over which emmeans are desired.}
+
+\item{pairwise}{If TRUE (default), test for differential rhythmicity (compare groups). If FALSE, test for rhythmicity only (detect rhythmicity)}
 
 \item{nsim}{the number of simulations, positive integer; the bootstrap B (or R) for bootMer function.Default is 500.}
 
@@ -30,10 +34,12 @@ get.means.ci.cosinor(
 
 \item{conflevel}{The confidence level required, default is 0.95.}
 
+\item{seed}{argument to pass into 'seed' parameter in bootMer() function. Default NULL}
+
 \item{...}{additional argument(s) for methods.}
 }
 \value{
-
+Output with confidence intervals and means for MESOR, amplitude and acrophase
 }
 \description{
 The function will takes in a fitted merMod object, transform the linear/raw coefficients to COSINOR non-linear/transformed coefficients
@@ -41,9 +47,12 @@ for MESOR, Amplitude and acrophase and estimated the standard error through boot
 confidence interval.
 }
 \examples{
+data(db.cosinor)
+head(db.cosinor)
+db.model <- create.cosinor.param(time = "Hour_of_Day", period = 24, data = db.cosinor)
 
-f<-fit.cosinor.mixed(y="hrv", x="gender", random="1|participant_id", data=db.model)
+f<-fit.cosinor.mixed(y = "hrv", x = "gender", random = "1|participant_id", data = db.model)
 summary(f)
-get.means.ci.cosinor(fit=f, contrast.frm="~gender")
+get.means.ci.cosinor(fit = f, contrast.frm = "~gender", nsim = 50, ncpus = 2)
 
 }

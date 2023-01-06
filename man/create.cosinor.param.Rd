@@ -14,11 +14,14 @@ create.cosinor.param(time, period, data)
 \item{data}{the dataframe with the time and period information}
 }
 \value{
-
+\code{data.frame} with cosinor parameters. \code{rrr} = cosine component, \code{sss} = sine component
 }
 \description{
 Create cosinor parameters using the time variable and the cosinor period
 }
 \examples{
-db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=data)
+data(db.cosinor)
+head(db.cosinor)
+## create cosinor paramenters needed for cosinor model
+db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=db.cosinor)
 }

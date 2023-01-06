@@ -4,20 +4,26 @@
 \alias{stat.test.stars}
 \title{Get the stars for statistical test plots}
 \usage{
-stat.test.stars(db.delta, contrast.frm)
+stat.test.stars(db.delta, db.means, contrast.frm)
 }
 \arguments{
-\item{db.delta}{the output from function get.contrasts.ci.cosinor()}
+\item{db.delta}{the output from function \link[cosinoRmixedeffects2]{get.contrasts.ci.cosinor}}
+
+\item{db.means}{the output from function \link[cosinoRmixedeffects2]{get.means.ci.cosinor}}
 
 \item{contrast.frm}{a string formula specifying the names of the predictors over which emmeans are desired.}
 }
 \value{
-
+output for significance stats
 }
 \description{
 Get the stars for statistical test plots
 }
 \examples{
-stat.test.stars(db.delta=db.delta, contrast.frm = "~gender")
+db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=db.cosinor)
+f1<-fit.cosinor.mixed(y="hrv",x="gender",random="1|participant_id", data=db.model)
+db.delta<-get.contrasts.ci.cosinor(f1,contrast.frm="~gender",nsim=100,ncpus=2)
+db.means<-get.means.ci.cosinor(f1,contrast.frm="~gender",nsim=100,ncpus=2)
+stat.test.stars(db.delta=db.delta, db.means=db.means, contrast.frm = "~gender")
 
 }

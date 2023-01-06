@@ -7,11 +7,14 @@
 get.contrasts.ci.cosinor(
   fit,
   contrast.frm,
+  pairwise = TRUE,
   nsim = 500,
   parallel = "multicore",
   ncpus = 8,
   conftype = "norm",
   conflevel = 0.95,
+  plot = TRUE,
+  seed = NULL,
   ...
 )
 }
@@ -19,6 +22,8 @@ get.contrasts.ci.cosinor(
 \item{fit}{the object from lmer()}
 
 \item{contrast.frm}{a string formula specifying the names of the predictors over which emmeans are desired.}
+
+\item{pairwise}{If TRUE (default), test for differential rhythmicity (compare groups). If FALSE, test for rhythmicity only (detect rhythmicity)}
 
 \item{nsim}{the number of simulations, positive integer; the bootstrap B (or R) for bootMer function.Default is 500.}
 
@@ -30,10 +35,14 @@ get.contrasts.ci.cosinor(
 
 \item{conflevel}{The confidence level required, default is 0.95.}
 
+\item{plot}{Boolean (default: TRUE) for plotting the NULL distribution and the observed value while calculating bootstrapped p-values}
+
+\item{seed}{argument to pass into 'seed' parameter in bootMer() function. Default NULL}
+
 \item{...}{additional argument(s) for methods.}
 }
 \value{
-
+Output with confidence intervals, estimates, standard errors and p-values for MESOR, amplitude and acrophase
 }
 \description{
 The function takes in a fitted merMod object as input and returns the statistics (e.g. standard error) of pair-wise contrasts
@@ -41,11 +50,12 @@ of MESOR, amplitude and acrophase. The output are bootstrapped estimates, 95% co
 for MESOR, Amplitude and acrophase.
 }
 \examples{
-library(lme4)
-library(emmeans)
-data("db.model")
-f<-fit.cosinor.mixed(y="hrv", x="gender", random="1|participant_id", data=db.model)
+data(db.cosinor)
+head(db.cosinor)
+db.model <- create.cosinor.param(time = "Hour_of_Day", period = 24, data = db.cosinor)
+
+f <- fit.cosinor.mixed(y = "hrv", x = "gender", random = "1|participant_id", data = db.model)
 summary(f)
-get.contrasts.ci.cosinor(f,contrast.frm="~gender")
+get.contrasts.ci.cosinor(f, contrast.frm = "~gender", nsim = 50, ncpus = 2)
 
 }

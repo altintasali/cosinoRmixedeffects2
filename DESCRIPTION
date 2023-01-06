@@ -1,20 +1,30 @@
-Package: cosinoRmixedeffects
+Package: cosinoRmixedeffects2
 Type: Package
-Title: Tools for estimating and predicting the cosinor model with mixed effects
+Title: Tools for estimating and predicting the cosinor model with mixed effects for rhythmicity and differential rhythmicity analysis
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: cosinoRmixedeffects is a set of simple functions that transforms longitudinal
-    data to estimate the cosinor linear model as described in Tong (1976).
-    Methods are given to summarize the mean, amplitude and acrophase, to
-    predict the mean annual outcome value, and to test the coefficients in mixed models.
-License: What license is it under?
+Author: Ali Altintas
+Maintainer: Ali Altintas <altintas.ali@gmail.com>
+Description: cosinoRmixedeffects2 is an extension of [cosinoRmixedeffects](https://github.com/maytesuarezfarinas/cosinoRmixedeffects).
+License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 Suggests: 
     knitr,
     rmarkdown
-VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
+Imports: 
+    utils,
+    stats,
+    graphics,
+    emmeans,
+    lme4,
+    ggplot2,
+    reshape2,
+    plyr,
+    dplyr,
+    limma,
+    doMC,
+    rstatix
+VignetteBuilder: knitr
