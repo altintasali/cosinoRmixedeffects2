@@ -4,13 +4,19 @@
 #' @param period the length of the cosinor period, eg.24
 #' @param data the dataframe with the time and period information
 #'
-#' @return
+#' @return \code{data.frame} with cosinor parameters. \code{rrr} = cosine component, \code{sss} = sine component
+#'
+#' @importFrom dplyr mutate
+#'
 #' @export
 #'
 #' @examples
-#' db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=data)
-create.cosinor.param<-function(time, period, data){
-  db.cosinor<-mutate(data,
+#' data(db.cosinor)
+#' head(db.cosinor)
+#' ## create cosinor paramenters needed for cosinor model
+#' db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=db.cosinor)
+create.cosinor.param <- function(time, period, data){
+  db.cosinor <- dplyr::mutate(data,
                      t=data[,time],
                      rrr=cos(2*pi*t/period),
                      sss=sin(2*pi*t/period))
