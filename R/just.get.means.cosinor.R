@@ -18,13 +18,20 @@
 #' require(lme4)
 #' db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=db.cosinor)
 #'
-#' f1.a<-lme4::lmer(hrv~gender+T0toT14+
-#'                  gender*rrr+gender*sss+
-#'                  T0toT14*rrr+T0toT14*sss+
-#'                  (1|participant_id),
-#'                  data=db.model, na.action = na.omit)
 #'
-#' just.get.means.cosinor(fit=f1.a, contrast.frm='~T0toT14')
+#' # Rhythmicity stats (individual comparisons)
+#' f1<-lme4::lmer(hrv~rrr+sss+(1|participant_id),
+#'                data=db.model, na.action = na.omit)
+#'
+#' just.get.means.cosinor(fit=f1, contrast.frm='~rrr+sss', pairwise = FALSE)
+#'
+#' # Differential rhythmicity stats (pairwise comparisons)
+#' f2<-lme4::lmer(hrv~gender+
+#'                gender*rrr+
+#'                gender*sss+(1|participant_id),
+#'                data=db.model, na.action = na.omit)
+#'
+#' just.get.means.cosinor(fit=f2, contrast.frm='~gender', pairwise = FALSE)
 #'
 just.get.means.cosinor<- function(fit, contrast.frm, pairwise = TRUE, ...) {
   #get the fitted contrasts and transform to Amp,Acr
@@ -52,10 +59,16 @@ just.get.means.cosinor<- function(fit, contrast.frm, pairwise = TRUE, ...) {
              function(x){correct.acrophase.msf(b_rrr=x[1],b_sss=x[2])})
   names(acr) <- paste0('Acrophase_',groups.names)
 
-  out <- c(pars.raw.mesor,amp,acr)
+  parsed_formula_pars <- trimws(unlist(strsplit(x = as.character(contrast.frm)[2], split = "[+]")))
+  rhythmicity_logic <- all(parsed_formula_pars %in% c("rrr", "sss"))
 
-  if(!pairwise){
+  if(rhythmicity_logic & !pairwise){
+    out<-c(pars.raw.mesor, amp, acr)
     names(out) <- c("MESOR", "Amplitude", "Acrophase")
+  }else{
+    out<-c(get.pairwise.diff(pars.raw.mesor),
+           get.pairwise.diff(amp),
+           get.pairwise.diff(acr))
   }
 
   return(out)
