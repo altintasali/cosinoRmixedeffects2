@@ -16,7 +16,20 @@ Imagine that you ran a differential rhythmicity analysis for *gene_3* and it tur
 
 ## Installation 
 
-[TODO]
+## Installation
+
+Please install `devtools` if you haven't yet.
+
+```
+install.packages("devtools")
+```
+
+Then, you finally install the `aamisc` package by using:
+
+```
+library(devtools)
+install_github("altintasali/cosinoRmixedeffects2")
+```
 
 ## Quick start
 
