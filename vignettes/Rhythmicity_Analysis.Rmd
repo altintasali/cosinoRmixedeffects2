@@ -1,0 +1,83 @@
+---
+title: "Rhythmicity and differential rhythmicity analysis"
+author: "Ali Altintas"
+date: "2023-01-06"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Rhythmicity_Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This package, [cosinoRmixedeffects2](https://github.com/altintasali/cosinoRmixedeffects2), is forked from [cosinoRmixedeffects](https://github.com/maytesuarezfarinas/cosinoRmixedeffects). [cosinoRmixedeffects](https://github.com/maytesuarezfarinas/cosinoRmixedeffects) makes an excellent implementation of mixed effects model to calculate the effect size, confidence intervals, standard errors and p-values using a bootstrapping approach while comparing the rhythmicity parameters *MESOR*, *amplitude* and *acrophase* across two or more groups. In the circadian bioinformatics, this approach is called as **differential rhythmicity** as it compares the **rhythmicity** between 2 or more groups. 
+
+Prior to the differential rhythmicity analysis, a pre-filtering step is required to check whether at least one of the groups show rhythmicity in the measured entity such as gene expression. For example, let's assume that we would like to test the differential rhythmicity of 3 genes (*gene_1*, *gene_2*, *gene_3*) between 2 groups (*group_A*, *group_B*). Below &#10003; and &#10005; shows if a gene is **rhythmic** or **not rhythmic**, respectively.
+
+| Gene          | group_1       | group_2       |
+| :-----------: | :-----------: | :-----------: |
+| gene_1        | &#10003;      |   &#10003;    |
+| gene_2        | &#10003;      |   &#10005;    |
+| gene_3        | &#10005;      |   &#10005;    |
+
+Imagine that you ran a differential rhythmicity analysis for *gene_3* and it turned out to be statistically significant. However, remember that *gene_3* did not show any rhytmicity neither in *group_1* nor in *group_2*. This will obviously lead to a false positive discovery. Therefore, genes (or whatever feature you are testing) that do not show any rhythmicity should be discarded from differential rhythmicity analysis. In the toy example above, we should keep *gene_1* and *gene_2* while filtering out *gene_3* for differential rhythmicity analysis.
+
+[cosinoRmixedeffects2](https://github.com/altintasali/cosinoRmixedeffects2) can perform **rhythmicity analysis** while keeping the same methodological principles presented in [cosinoRmixedeffects](https://github.com/maytesuarezfarinas/cosinoRmixedeffects) for **differential rhythmicity analysis**.
+
+### What's new? 
+
+New features
+
+* Rhythmicity analysis
+* Improved acrophase calculation
+* New parameter `seed`: random seed assignment for reproducible results
+* CRAN style R package
+
+Bug fixes (from `cosinoRmixedeffects`)
+
+* Amplitude calculation
+* Small improvements and fixes on function parameters
+
+## Installation
+
+Please install `devtools` if you haven't yet.
+
+```{r devtools, eval=FALSE}
+install.packages("devtools")
+```
+
+Then, you finally install the `aamisc` package by using:
+
+```{r install, eval=FALSE}
+library(devtools)
+install_github("altintasali/cosinoRmixedeffects2")
+```
+
+## Toy dataset
+
+
+
+## Rhyhmicity analysis
+
+## Differential rhythmicity analysis
+
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
