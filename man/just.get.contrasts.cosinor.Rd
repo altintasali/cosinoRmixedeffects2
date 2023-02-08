@@ -28,15 +28,21 @@ require(lme4)
 
 db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=db.cosinor)
 
-f1.a<-lme4::lmer(hrv~gender+
-                 gender*rrr+
-                 gender*sss+(1|participant_id),
-                 data=db.model, na.action = na.omit)
+
+# Rhythmicity stats (individual comparisons)
+f1<-lme4::lmer(hrv~rrr+sss+(1|participant_id),
+               data=db.model, na.action = na.omit)
+
+just.get.contrasts.cosinor(fit=f1, contrast.frm='~rrr+sss', pairwise = FALSE)
 
 # Differential rhythmicity stats (pairwise comparisons)
-just.get.contrasts.cosinor(fit=f1.a, contrast.frm='~gender', pairwise = TRUE)
+f2<-lme4::lmer(hrv~gender+
+               gender*rrr+
+               gender*sss+(1|participant_id),
+               data=db.model, na.action = na.omit)
 
-# Rhytmicity stats (individual comparisons)
-just.get.contrasts.cosinor(fit=f1.a, contrast.frm='~gender', pairwise = FALSE)
+just.get.contrasts.cosinor(fit=f2, contrast.frm='~gender', pairwise = FALSE)
+just.get.contrasts.cosinor(fit=f2, contrast.frm='~gender', pairwise = TRUE)
+
 
 }

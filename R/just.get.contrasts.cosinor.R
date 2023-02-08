@@ -26,7 +26,7 @@
 #' f1<-lme4::lmer(hrv~rrr+sss+(1|participant_id),
 #'                data=db.model, na.action = na.omit)
 #'
-#' just.get.contrasts.cosinor(fit=f1.a, contrast.frm='~rrr+sss', pairwise = FALSE)
+#' just.get.contrasts.cosinor(fit=f1, contrast.frm='~rrr+sss', pairwise = FALSE)
 #'
 #' # Differential rhythmicity stats (pairwise comparisons)
 #' f2<-lme4::lmer(hrv~gender+
@@ -35,6 +35,7 @@
 #'                data=db.model, na.action = na.omit)
 #'
 #' just.get.contrasts.cosinor(fit=f2, contrast.frm='~gender', pairwise = FALSE)
+#' just.get.contrasts.cosinor(fit=f2, contrast.frm='~gender', pairwise = TRUE)
 #'
 #'
 just.get.contrasts.cosinor<- function(fit,
@@ -45,6 +46,16 @@ just.get.contrasts.cosinor<- function(fit,
   contrast.frm<-as.formula(contrast.frm)
   mf <- fit #object$fit
 
+  ## Check the rhythmicity logic
+  parsed_formula_pars <- trimws(unlist(strsplit(x = as.character(contrast.frm)[2], split = "[+]")))
+  rhythmicity_logic <- all(parsed_formula_pars %in% c("rrr", "sss"))
+
+  if(rhythmicity_logic & pairwise){
+    warning("'pairwise' cannot be set if the fit formula is '~ rrr + sss'. Setting pairwise = FALSE")
+    pairwise <- FALSE
+  }
+
+  ## Calculate contrasts
   groups.M<-emmeans(mf, contrast.frm)
   groups.rrr<-emtrends(mf, contrast.frm,'rrr')
   groups.sss<-emtrends(mf, contrast.frm,'sss')
@@ -70,13 +81,15 @@ just.get.contrasts.cosinor<- function(fit,
   parsed_formula_pars <- trimws(unlist(strsplit(x = as.character(contrast.frm)[2], split = "[+]")))
   rhythmicity_logic <- all(parsed_formula_pars %in% c("rrr", "sss"))
 
-  if(rhythmicity_logic & !pairwise){
-    out<-c(pars.raw.mesor, amp, acr)
-    names(out) <- c("MESOR", "Amplitude", "Acrophase")
+  if(pairwise){
+    out <- c(get.pairwise.diff(pars.raw.mesor),
+             get.pairwise.diff(amp),
+             get.pairwise.diff(acr))
   }else{
-    out<-c(get.pairwise.diff(pars.raw.mesor),
-           get.pairwise.diff(amp),
-           get.pairwise.diff(acr))
+    out<-c(pars.raw.mesor, amp, acr)
+    if(rhythmicity_logic){
+      names(out) <- c("MESOR", "Amplitude", "Acrophase")
+    }
   }
 
   return(out)

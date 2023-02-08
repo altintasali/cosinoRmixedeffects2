@@ -7,7 +7,7 @@
 get.means.ci.cosinor(
   fit,
   contrast.frm,
-  pairwise = TRUE,
+  pairwise = FALSE,
   nsim = 500,
   parallel = "multicore",
   ncpus = 8,
@@ -51,8 +51,16 @@ data(db.cosinor)
 head(db.cosinor)
 db.model <- create.cosinor.param(time = "Hour_of_Day", period = 24, data = db.cosinor)
 
-f<-fit.cosinor.mixed(y = "hrv", x = "gender", random = "1|participant_id", data = db.model)
-summary(f)
-get.means.ci.cosinor(fit = f, contrast.frm = "~gender", nsim = 50, ncpus = 2)
+# Rhythmicity stats (individual comparisons)
+f1 <- lme4::lmer(hrv~rrr+sss+(1|participant_id),
+               data=db.model, na.action = na.omit)
+
+get.means.ci.cosinor(fit = f1, contrast.frm = '~ rrr + sss', nsim = 50, ncpus = 2, pairwise = TRUE)
+
+# Differentiaal rhythmicity stats (pairwise comparisons)
+f2 <- fit.cosinor.mixed(y = "hrv", x = "gender", random = "1|participant_id", data = db.model)
+summary(f2)
+get.means.ci.cosinor(fit = f2, contrast.frm = "~gender", nsim = 50, ncpus = 2, pairwise = FALSE)
+get.means.ci.cosinor(fit = f2, contrast.frm = "~gender", nsim = 50, ncpus = 2, pairwise = TRUE)
 
 }

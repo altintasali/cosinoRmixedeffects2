@@ -31,6 +31,7 @@
 #'                gender*sss+(1|participant_id),
 #'                data=db.model, na.action = na.omit)
 #'
+#' just.get.means.cosinor(fit=f2, contrast.frm='~gender', pairwise = TRUE)
 #' just.get.means.cosinor(fit=f2, contrast.frm='~gender', pairwise = FALSE)
 #'
 just.get.means.cosinor<- function(fit, contrast.frm, pairwise = TRUE, ...) {
@@ -38,6 +39,16 @@ just.get.means.cosinor<- function(fit, contrast.frm, pairwise = TRUE, ...) {
   contrast.frm<-as.formula(contrast.frm)
   mf <- fit #object$fit
 
+  ## Check the rhythmicity logic
+  parsed_formula_pars <- trimws(unlist(strsplit(x = as.character(contrast.frm)[2], split = "[+]")))
+  rhythmicity_logic <- all(parsed_formula_pars %in% c("rrr", "sss"))
+
+  if(rhythmicity_logic & pairwise){
+    warning("'pairwise' cannot be set if the fit formula is '~ rrr + sss'. Setting pairwise = FALSE")
+    pairwise <- FALSE
+  }
+
+  ## Calculate contrasts
   groups.M<-emmeans(mf, contrast.frm)
   groups.rrr<-emtrends(mf, contrast.frm,'rrr')
   groups.sss<-emtrends(mf, contrast.frm,'sss')
@@ -59,16 +70,15 @@ just.get.means.cosinor<- function(fit, contrast.frm, pairwise = TRUE, ...) {
              function(x){correct.acrophase.msf(b_rrr=x[1],b_sss=x[2])})
   names(acr) <- paste0('Acrophase_',groups.names)
 
-  parsed_formula_pars <- trimws(unlist(strsplit(x = as.character(contrast.frm)[2], split = "[+]")))
-  rhythmicity_logic <- all(parsed_formula_pars %in% c("rrr", "sss"))
-
-  if(rhythmicity_logic & !pairwise){
-    out<-c(pars.raw.mesor, amp, acr)
-    names(out) <- c("MESOR", "Amplitude", "Acrophase")
+  if(pairwise){
+    out <- c(get.pairwise.diff(pars.raw.mesor),
+             get.pairwise.diff(amp),
+             get.pairwise.diff(acr))
   }else{
-    out<-c(get.pairwise.diff(pars.raw.mesor),
-           get.pairwise.diff(amp),
-           get.pairwise.diff(acr))
+    out<-c(pars.raw.mesor, amp, acr)
+    if(rhythmicity_logic){
+      names(out) <- c("MESOR", "Amplitude", "Acrophase")
+    }
   }
 
   return(out)

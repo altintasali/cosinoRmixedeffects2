@@ -22,8 +22,8 @@ Get the stars for statistical test plots
 \examples{
 db.model<-create.cosinor.param(time="Hour_of_Day", period=24, data=db.cosinor)
 f1<-fit.cosinor.mixed(y="hrv",x="gender",random="1|participant_id", data=db.model)
-db.delta<-get.contrasts.ci.cosinor(f1,contrast.frm="~gender",nsim=100,ncpus=2)
-db.means<-get.means.ci.cosinor(f1,contrast.frm="~gender",nsim=100,ncpus=2)
+db.delta<-get.contrasts.ci.cosinor(f1,contrast.frm="~gender",nsim=100,ncpus=2,pairwise=TRUE)
+db.means<-get.means.ci.cosinor(f1,contrast.frm="~gender",nsim=100,ncpus=2, pairwise=FALSE)
 stat.test.stars(db.delta=db.delta, db.means=db.means, contrast.frm = "~gender")
 
 }

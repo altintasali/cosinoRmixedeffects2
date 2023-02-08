@@ -27,12 +27,21 @@
 #' head(db.cosinor)
 #' db.model <- create.cosinor.param(time = "Hour_of_Day", period = 24, data = db.cosinor)
 #'
-#' f<-fit.cosinor.mixed(y = "hrv", x = "gender", random = "1|participant_id", data = db.model)
-#' summary(f)
-#' get.means.ci.cosinor(fit = f, contrast.frm = "~gender", nsim = 50, ncpus = 2)
+#' # Rhythmicity stats (individual comparisons)
+#' f1 <- lme4::lmer(hrv~rrr+sss+(1|participant_id),
+#'                data=db.model, na.action = na.omit)
 #'
-get.means.ci.cosinor <- function(fit, contrast.frm,
-                                 pairwise = TRUE,
+#' get.means.ci.cosinor(fit = f1, contrast.frm = '~ rrr + sss', nsim = 50, ncpus = 2, pairwise = TRUE)
+#'
+#' # Differentiaal rhythmicity stats (pairwise comparisons)
+#' f2 <- fit.cosinor.mixed(y = "hrv", x = "gender", random = "1|participant_id", data = db.model)
+#' summary(f2)
+#' get.means.ci.cosinor(fit = f2, contrast.frm = "~gender", nsim = 50, ncpus = 2, pairwise = FALSE)
+#' get.means.ci.cosinor(fit = f2, contrast.frm = "~gender", nsim = 50, ncpus = 2, pairwise = TRUE)
+#'
+get.means.ci.cosinor <- function(fit,
+                                 contrast.frm,
+                                 pairwise = FALSE,
                                  nsim = 500,
                                  parallel = "multicore",
                                  ncpus = 8,
@@ -44,8 +53,12 @@ get.means.ci.cosinor <- function(fit, contrast.frm,
   ## Assign parameters to NULL to avoid devtools::check() NOTES
   VALUE <-  NULL
 
-  ## get tarnsformed means of MESOR, amplitude and acrophase
-  ModelCoefs <- just.get.means.cosinor(fit=fit, contrast.frm=contrast.frm, pairwise = pairwise)
+  # ## get tarnsformed means of MESOR, amplitude and acrophase
+  # ModelCoefs <- just.get.means.cosinor(fit=fit, contrast.frm=contrast.frm, pairwise = pairwise)
+
+  ## Check the rhythmicity logic
+  parsed_formula_pars <- trimws(unlist(strsplit(x = as.character(as.formula(contrast.frm))[2], split = "[+]")))
+  rhythmicity_logic <- all(parsed_formula_pars %in% c("rrr", "sss"))
 
   ##bootstrap to get the confidence interval
   boot.mean <- lme4::bootMer(fit,
@@ -59,17 +72,21 @@ get.means.ci.cosinor <- function(fit, contrast.frm,
   db.means<-cbind.data.frame(MEAN=boot.mean$t0,
                              confint(boot.mean, type=conftype, level=conflevel))
 
-  if(pairwise){
-    db.means$VALUE<-gsub(" ", "",rownames(db.means))
-
-    db.means<-mutate(db.means,
-                     Param = limma::strsplit2(VALUE, "_")[,1],
-                     contrast = gsub(" ", "", limma::strsplit2(VALUE, "_")[,2]))
-    ##"|", "*" will appear when contrast.frm are interactions
-    db.means <- plyr::rename(db.means, c("contrast" = mgsub(c("~","[|]","[*]"),c("","_","_"), contrast.frm)))
-    db.means$Param <- factor(db.means$Param, levels=c("MESOR","Amplitude","Acrophase"))
-  }else{
+  if(rhythmicity_logic){
     db.means$Param <- factor(rownames(db.means), levels=c("MESOR","Amplitude","Acrophase"))
+  }else{
+    if(!pairwise){
+      db.means$VALUE<-gsub(" ", "",rownames(db.means))
+
+      db.means<-mutate(db.means,
+                       Param = limma::strsplit2(VALUE, "_")[,1],
+                       contrast = gsub(" ", "", limma::strsplit2(VALUE, "_")[,2]))
+      ##"|", "*" will appear when contrast.frm are interactions
+      db.means <- plyr::rename(db.means, c("contrast" = mgsub(c("~","[|]","[*]"),c("","_","_"), contrast.frm)))
+      db.means$Param <- factor(db.means$Param, levels=c("MESOR","Amplitude","Acrophase"))
+    }else{
+      db.means$VALUE<-gsub(" ", "",rownames(db.means))
+    }
   }
 
   return(db.means)
