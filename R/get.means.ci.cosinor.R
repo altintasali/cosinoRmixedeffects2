@@ -78,7 +78,7 @@ get.means.ci.cosinor <- function(fit,
     if(!pairwise){
       db.means$VALUE<-gsub(" ", "",rownames(db.means))
 
-      db.means<-mutate(db.means,
+      db.means<-dplyr::mutate(db.means,
                        Param = limma::strsplit2(VALUE, "_")[,1],
                        contrast = gsub(" ", "", limma::strsplit2(VALUE, "_")[,2]))
       ##"|", "*" will appear when contrast.frm are interactions
