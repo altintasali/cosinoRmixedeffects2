@@ -1,7 +1,7 @@
 ---
 title: "Rhythmicity and differential rhythmicity analysis"
 author: "Ali Altintas"
-date: "2023-01-06"
+date: "2023-02-15"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Rhythmicity_Analysis}
@@ -14,7 +14,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width=8,
-  fig.height=3
+  fig.height=3, 
+  fig.retina = 2
 )
 ```
 
@@ -56,11 +57,22 @@ Please install `devtools` if you haven't yet.
 install.packages("devtools")
 ```
 
-Then, you finally install the `aamisc` package by using:
+Then, you finally install the `cosinoRmixedeffects2` package by using:
 
 ```{r install, eval=FALSE}
 library(devtools)
-install_github("altintasali/cosinoRmixedeffects2")
+install_github("altintasali/cosinoRmixedeffects2", build_vignettes = TRUE, dependencies = TRUE)
+```
+
+## Required libraries
+```{r libraries}
+## this package
+library("cosinoRmixedeffects2")
+
+## additional packages for this vignette
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load("stringr", "ggplot2", "magrittr", 
+               "metap", "rstatix", "ggpubr")
 ```
 
 ## Toy dataset
@@ -68,7 +80,6 @@ install_github("altintasali/cosinoRmixedeffects2")
 Let's simulate a toy dataset, of which we can test the rhythmicity and differential rhtyhmicity. 
 
 ```{r toy_data}
-library("cosinoRmixedeffects2")
 noise_levels <- seq(0.2, 1, by=0.2)
 set.seed(2023)
 
@@ -134,7 +145,7 @@ gene3 <- reshape2::melt(gene3)
 gene3 <- data.frame(gene_id = "gene_3", gene3)
 
 rhy_data <- rbind(gene1, gene2, gene3)
-require(stringr)
+
 group_ind <- str_split_fixed(rhy_data$Var2, "_", 2)
 group_ind <- as.data.frame(group_ind)
 rhy_data <- cbind(rhy_data, group_ind)
@@ -143,7 +154,6 @@ colnames(rhy_data)  <- c("gene_id", "Time", "value", "group", "individual")
 rhy_data <- data.frame(unclass(rhy_data), stringsAsFactors = TRUE)
 str(rhy_data)
 
-require(ggplot2)
 ggplot(rhy_data, aes(x = Time, y = value)) +
   geom_point(aes(color = group)) +
   facet_grid(~gene_id)
@@ -192,8 +202,6 @@ calc_rhy <- function(x){
 }
 
 ## Calculate rhythmicity for each group
-require(magrittr)
-
 rhy_res_groupA <- sapply(rhy_data_groupA, calc_rhy) %>%
   t %>%
   apply(., 2, unlist) %>% 
@@ -237,7 +245,6 @@ rownames(rhy_res_groupA)[keep]
 Combining p-values is a more statistically robust method. I recommend either Fisher's method or Trippet's method to combine (raw) p-values. Those combined p-values, a.k.a meta p-values, should then be subject to adjustment for multiple testing.
 
 ```{r combineP_filter}
-require(metap)
 pmat <- cbind(rhy_res_groupA$pvalue, rhy_res_groupB$pvalue)
 
 ## Meta p-values using Trippet's method
@@ -329,12 +336,10 @@ p <- ggplot(diff_rhy[[gene2plot]]$db.means, aes(x = group, y = MEAN, color = gro
   theme(strip.text.x = element_text(size = 14))
 p
 
-require(rstatix)
 stat.test <- stat.test.stars(db.delta = diff_rhy[[gene2plot]]$db.delta, 
                              db.means = diff_rhy[[gene2plot]]$db.means, 
                              contrast.frm = "~group")
 
-require(ggpubr)
 p <- p + ggpubr::stat_pvalue_manual(stat.test, hide.ns = T, step.increase = 0.05, tip.length = 0.03)
 
 p
