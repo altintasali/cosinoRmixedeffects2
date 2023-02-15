@@ -24,7 +24,14 @@ Please install `devtools` if you haven't yet.
 install.packages("devtools")
 ```
 
-Then, you finally install the `aamisc` package by using:
+Then, you finally install the `cosinoRmixedeffects2` package by using the command below. **Warning:** It will take some time to build the vignettes, therefore sit back and relax (time for a coffee). 
+
+```
+library(devtools)
+install_github("altintasali/cosinoRmixedeffects2", build_vignettes = TRUE, dependencies = TRUE)
+```
+
+If you are in a hurry and you know what to do, you can install the package without building the vignettes: 
 
 ```
 library(devtools)
@@ -33,7 +40,11 @@ install_github("altintasali/cosinoRmixedeffects2")
 
 ## Quick start
 
-[TODO]
+I recommend going through the vignette **Rhythmicity and differential rhythmicity analysis** for a quick start. 
+
+```
+vignette("Rhythmicity_Analysis", package = "cosinoRmixedeffects2")
+```
 
 ## What's new compared to `cosinoRmixedeffects`? 
 
